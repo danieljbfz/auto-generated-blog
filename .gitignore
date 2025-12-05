@@ -1,0 +1,42 @@
+# Node.js
+node_modules/              # Dependencies (huge, reinstallable)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables (CRITICAL - contains secrets)
+.env
+.env.local
+.env.*.local
+
+# Operating System
+.DS_Store                  # Mac file system
+Thumbs.db                  # Windows thumbnails
+*.swp                      # Vim swap files
+
+# IDEs
+.vscode/                   # VS Code settings (optional, your choice)
+.idea/                     # WebStorm
+*.sublime-workspace
+
+# Build outputs
+dist/
+build/
+coverage/                  # Test coverage reports
+
+# Logs
+logs/
+*.log
+
+# Temporary files
+tmp/
+temp/
+
+# Docker
+docker-compose.override.yml  # Local overrides
+
+# AWS
+.aws-sam/
+
+# Testing
+.nyc_output/
