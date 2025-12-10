@@ -1,0 +1,60 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_REGION: "us-east-1"
+    AWS_ACCOUNT_ID: "406005162296"
+    BACKEND_ECR_URI: "406005162296.dkr.ecr.us-east-1.amazonaws.com/auto-auto-blog-backend"
+    FRONTEND_ECR_URI: "406005162296.dkr.ecr.us-east-1.amazonaws.com/auto-auto-blog-frontend"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo "Installing Docker Compose..."
+      - curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
+      - chmod +x /usr/local/bin/docker-compose
+      - echo "Docker Compose version: $(docker-compose version)"
+
+  pre_build:
+    commands:
+      - echo "Logging in to Amazon ECR..."
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
+
+  build:
+    commands:
+      # Backend: run tests and build
+      - echo "Building backend..."
+      - cd backend
+      - echo "Installing backend dependencies..."
+      - npm ci
+      - echo "Running backend tests..."
+      - npm test
+      - echo "Building backend Docker image..."
+      - docker build -t auto-blog-backend .
+      - docker tag auto-blog-backend:latest ${BACKEND_ECR_URI}:latest
+      - cd ..
+
+      # Frontend: build only
+      - echo "Building frontend..."
+      - cd frontend
+      - echo "Installing frontend dependencies..."
+      - npm ci
+      - echo "Building frontend Docker image..."
+      - docker build -t auto-blog-frontend .
+      - docker tag auto-blog-frontend:latest ${FRONTEND_ECR_URI}:latest
+      - cd ..
+
+  post_build:
+    commands:
+      - echo "Pushing images to ECR..."
+      - docker push ${BACKEND_ECR_URI}:latest
+      - docker push ${FRONTEND_ECR_URI}:latest
+      - echo "Images pushed successfully."
+
+artifacts:
+  files:
+    - '**/*'
+  discard-paths: no
+

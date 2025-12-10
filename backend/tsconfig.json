@@ -1,0 +1,72 @@
+{
+  "compilerOptions": {
+    // Language & Environment
+    "target": "ES2022",                           // Modern JavaScript features (2022)
+    "module": "ESNext",                           // ES modules (import/export)
+    "lib": ["ES2022"],                            // Include ES2022 APIs (no DOM)
+    "moduleResolution": "node",                   // Node.js module resolution
+
+    // Emit
+    "outDir": "./dist",                           // Compiled JavaScript output
+    "rootDir": "./src",                           // Source code root
+    "sourceMap": true,                            // Generate .map files for debugging
+    "declaration": true,                          // Generate .d.ts files
+    "declarationMap": true,                       // Generate .d.ts.map files
+    "removeComments": true,                       // Strip comments from compiled JS
+
+    // Type Checking (Strict Mode)
+    "strict": true,                               // Enable all strict checks
+    "noImplicitAny": true,                        // Error on 'any' type
+    "strictNullChecks": true,                     // Null/undefined are not assignable
+    "strictFunctionTypes": true,                  // Stricter function type checks
+    "strictBindCallApply": true,                  // Check bind/call/apply
+    "strictPropertyInitialization": true,         // Class properties must be initialized
+    "noImplicitThis": true,                       // Error on 'this' with implicit 'any'
+    "alwaysStrict": true,                         // Use 'use strict' in output
+
+    // Additional Checks (Catch More Errors)
+    "noUnusedLocals": true,                       // Error on unused variables
+    "noUnusedParameters": true,                   // Error on unused function params
+    "noImplicitReturns": true,                    // Error if function doesn't return
+    "noFallthroughCasesInSwitch": true,           // Error on switch fallthrough
+    "noUncheckedIndexedAccess": true,             // Index access returns T | undefined
+
+    // Interop
+    "esModuleInterop": true,                      // Better CommonJS/ESM compatibility
+    "allowSyntheticDefaultImports": true,         // Allow default imports from modules
+    "resolveJsonModule": true,                    // Import JSON files
+    "isolatedModules": true,                      // Each file can be compiled independently
+
+    // Advanced
+    "skipLibCheck": true,                         // Skip type checking of .d.ts files
+    "forceConsistentCasingInFileNames": true,     // Enforce case-sensitive imports
+
+    // Paths (for clean imports)
+    "baseUrl": "./src",
+    "paths": {
+      "@config/*":      ["config/*"],
+      "@models/*":      ["models/*"],
+      "@services/*":    ["services/*"],
+      "@controllers/*": ["controllers/*"],
+      "@routes/*":      ["routes/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@utils/*":       ["utils/*"],
+      "@types/*":       ["types/*"]
+    }
+  },
+  "include": [
+    "src/**/*",                                   // Compile all TypeScript in src/
+  ],
+  "exclude": [
+    "node_modules",                               // Don't compile dependencies
+    "dist",                                       // Don't compile output
+    "**/*.spec.ts",                               // Exclude test files from build
+    "**/*.test.ts",
+    "tests/prisma.test.ts",
+    "tests/generateArticle.test.ts",
+  ],
+  "ts-node": {
+    "esm": true,                                  // Enable ES modules in ts-node
+    "experimentalSpecifierResolution": "node"
+  }
+}

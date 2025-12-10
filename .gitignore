@@ -1,10 +1,10 @@
 # Node.js
-node_modules/              # Dependencies (huge, reinstallable)
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment variables (CRITICAL - contains secrets)
+# Environment variables
 .env
 .env.local
 .env.*.local
@@ -40,3 +40,6 @@ docker-compose.override.yml  # Local overrides
 
 # Testing
 .nyc_output/
+
+# Secrets
+secrets
