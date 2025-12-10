@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+  // output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Author {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug      String    @unique @db.VarChar(120)
+  name      String    @db.VarChar(120)
+  role      String?   @db.VarChar(120)
+  avatarUrl String?   @map("avatar_url") @db.VarChar(500)
+  bio       String?
+  website   String?   @db.VarChar(500)
+  type      String?   @default("ai") @db.VarChar(20)
+  isActive  Boolean   @default(true) @map("is_active")
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  articles  Article[]
+
+  @@index([name(ops: raw("gin_trgm_ops"))], map: "idx_authors_name_fuzzy", type: Gin)
+  @@map("authors")
+}
+
+model Category {
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parentId    String?    @map("parent_id") @db.Uuid
+  slug        String     @db.VarChar(120)
+  name        String     @db.VarChar(120)
+  description String?
+  isActive    Boolean    @default(true) @map("is_active")
+  createdAt   DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime   @default(now()) @map("updated_at") @db.Timestamptz(6)
+  articles    Article[]
+  parent      Category?  @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: Restrict, onUpdate: NoAction)
+  children    Category[] @relation("CategoryHierarchy")
+
+  @@unique([slug, parentId], map: "uq_categories_slug_parent")
+  @@index([parentId], map: "idx_categories_parent")
+  @@map("categories")
+}
+
+model Tag {
+  id        String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug      String       @unique @db.VarChar(100)
+  name      String       @db.VarChar(100)
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
+  articles  ArticleTag[]
+
+  @@index([name(ops: raw("gin_trgm_ops"))], map: "idx_tags_name_fuzzy", type: Gin)
+  @@map("tags")
+}
+
+model Article {
+  id                 String                   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  authorId           String                   @map("author_id") @db.Uuid
+  categoryId         String                   @map("category_id") @db.Uuid
+  title              String                   @db.VarChar(200)
+  slug               String                   @unique(map: "uq_articles_slug") @db.VarChar(220)
+  excerpt            String?
+  body               String
+  featuredImage      String?                  @map("featured_image") @db.VarChar(500)
+  imageAlt           String?                  @map("image_alt") @db.VarChar(300)
+  status             String                   @default("draft") @db.VarChar(20)
+  metadata           Json                     @default("{}")
+  readingTimeMinutes Int?                     @map("reading_time_minutes")
+  seoScore           Int?                     @map("seo_score")
+  search_vector      Unsupported("tsvector")? @default(dbgenerated("((setweight(to_tsvector('english'::regconfig, (COALESCE(title, ''::character varying))::text), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE(excerpt, ''::text)), 'B'::\"char\")) || setweight(to_tsvector('english'::regconfig, COALESCE(body, ''::text)), 'C'::\"char\"))"))
+  scheduledPublishAt DateTime?                @map("scheduled_publish_at") @db.Timestamptz(6)
+  publishedAt        DateTime?                @map("published_at") @db.Timestamptz(6)
+  createdAt          DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime                 @default(now()) @map("updated_at") @db.Timestamptz(6)
+  stats              ArticleStats?
+  tags               ArticleTag[]
+  author             Author                   @relation(fields: [authorId], references: [id], onUpdate: NoAction)
+  category           Category                 @relation(fields: [categoryId], references: [id], onUpdate: NoAction)
+
+  @@index([authorId], map: "idx_articles_author")
+  @@index([categoryId], map: "idx_articles_category")
+  @@index([metadata], map: "idx_articles_metadata", type: Gin)
+  @@index([search_vector], map: "idx_articles_search", type: Gin)
+  @@index([slug], map: "idx_articles_slug")
+  @@index([status], map: "idx_articles_status")
+  @@index([title(ops: raw("gin_trgm_ops"))], map: "idx_articles_title_fuzzy", type: Gin)
+  @@map("articles")
+}
+
+model ArticleStats {
+  articleId String   @id @map("article_id") @db.Uuid
+  views     BigInt   @default(0)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@map("article_stats")
+}
+
+model ArticleTag {
+  articleId String  @map("article_id") @db.Uuid
+  tagId     String  @map("tag_id") @db.Uuid
+  article   Article @relation(fields: [articleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  tag       Tag     @relation(fields: [tagId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@id([articleId, tagId])
+  @@index([articleId], map: "idx_article_tags_by_article")
+  @@index([tagId], map: "idx_article_tags_by_tag")
+  @@map("article_tags")
+}

@@ -1,0 +1,114 @@
+services:
+  # PostgreSQL database service
+  postgres:
+    image: postgres:16-alpine             # Use PostgreSQL 16 (lightweight alpine version)
+    container_name: auto-blog-postgres    # Name of the container
+    restart: unless-stopped               # Restart automatically if it crashes
+    
+    # Port mapping
+    ports:
+      - "5432:5432"
+    
+    # Environment variables
+    environment:
+      POSTGRES_USER: postgres             # Database username
+      POSTGRES_PASSWORD: postgres         # Database password
+      POSTGRES_DB: autoblog               # Database name to create automatically
+      POSTGRES_INITDB_ARGS: "-E UTF8"     # Use UTF-8 encoding
+    
+    # Volume mapping
+    volumes:
+      # Persist database data
+      - postgres_data:/var/lib/postgresql/data 
+      # Mount init scripts (for seeding)
+      - ./backend/database/migrations:/docker-entrypoint-initdb.d
+      - ./backend/database/seeds/001_initial_data.sql:/docker-entrypoint-initdb.d/901_initial_data.sql
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    networks:
+      - blog-network
+
+  # Backend API service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: auto-blog-backend
+    restart: unless-stopped
+
+    # Port mapping
+    ports:
+      - "3001:3001"
+
+    environment:
+      # Environment
+      NODE_ENV: development
+      PORT: 3001
+      
+      # Database
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/autoblog
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: autoblog
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_MAX_CONNECTIONS: 20
+      
+      # AI Service
+      HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY}
+      HUGGINGFACE_MODEL: meta-llama/Llama-3.3-70B-Instruct:scaleway
+      AI_GENERATION_ENABLED: true
+      ARTICLE_AUTO_PUBLISH: true
+
+      # AI Author
+      AI_AUTHOR_SLUG: ai-assistant
+      AI_AUTHOR_NAME: AI Assistant
+      AI_AUTHOR_ROLE: Content Generator
+      AI_AUTHOR_BIO: An AI-powered content creation assistant
+      AI_AUTHOR_AVATAR: https://api.dicebear.com/7.x/bottts/svg?seed=ai
+      
+      # CORS
+      CORS_ORIGIN: http://localhost:5173
+      
+      # Logging
+      LOG_LEVEL: debug
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+    
+    # Volume mapping
+    volumes:
+      # Mount source code fpr hot-reload
+      - ./backend/src:/app/src:ro
+      - ./backend/prisma:/app/prisma:ro
+
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    networks:
+      - blog-network
+
+    # Run Prisma migrations on startup
+    # entrypoint: ["/bin/sh", "-c"]
+    # command: "npx prisma migrate deploy && exec dumb-init node dist/index.js"
+
+# Volumes
+volumes:
+  postgres_data:
+    driver: local
+
+# Networks
+networks:
+  blog-network:
+    driver: bridge

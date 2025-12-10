@@ -1,0 +1,60 @@
+# Node modules (will be installed in the container)
+node_modules
+npm-debug.log
+
+# Build output (will be generated in the container)
+dist
+build
+*.tsbuildinfo
+
+# Environment files (use docker-compose env instead)
+.env
+.env.*
+!.env.example
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE and Editor Configs
+.vscode
+.idea
+*.swp
+*.swo
+*~
+.editorconfig
+.prettierrc
+.eslintrc*
+jest.config.*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage
+.nyc_output
+*.test.ts
+*.spec.ts
+tests
+__tests__
+
+# Documentation
+*.md
+!README.md
+docs
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.travis.yml
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml
+
+# Logs
+logs
+*.log

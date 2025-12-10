@@ -1,0 +1,14 @@
+-- ===================================================================
+-- Drop Article View Counter Function (Scaling Transition)
+--
+-- This script removes the synchronous `increment_article_views` function
+-- so we can migrate to a more durable and scalable solution like:
+-- 1. Redis INCR (fast, atomic)
+-- 2. Queues/Streams (Kafka/Pulsar/SQS) → consumer → Postgres
+-- 3. Time-bucketed writes (e.g., using TimescaleDB)
+--
+-- A separate background job would then periodically sync these
+-- batched or asynchronous counts to the main Postgres table.
+-- ===================================================================
+
+-- DROP FUNCTION IF EXISTS increment_article_views(UUID);
