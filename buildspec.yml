@@ -36,7 +36,7 @@ phases:
       - cd frontend
       - npm ci
       - echo "Building frontend Docker image..."
-      - docker build --build-arg VITE_API_URL=http://YOUR_EC2_IP:3001/api -t blog-frontend .
+      - docker build --build-arg VITE_API_URL=http://13.60.75.58:3001/api -t blog-frontend .
       - docker tag blog-frontend:latest ${FRONTEND_ECR_URI}:latest
       - cd ..
 
