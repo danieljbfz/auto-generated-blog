@@ -1,0 +1,62 @@
+services:
+  # PostgreSQL database service
+  postgres:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: autoblog
+      
+    # Remove port exposure (only accessible via internal network)
+    ports: []
+    
+    # Production tuning for better performance
+    command: >
+      postgres
+      -c shared_buffers=256MB
+      -c effective_cache_size=1GB
+      -c maintenance_work_mem=64MB
+      -c checkpoint_completion_target=0.9
+      -c wal_buffers=16MB
+      -c default_statistics_target=100
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+      -c work_mem=6553kB
+      -c min_wal_size=1GB
+      -c max_wal_size=4GB
+
+  # Backend API service
+  backend:
+    environment:
+      NODE_ENV: production
+      LOG_LEVEL: info   # Less verbose logging
+      
+      # Update CORS for production domain
+      CORS_ORIGIN: ${CORS_ORIGIN:-https://yourdomain.com}
+    
+    # Remove development volume mounts (no hot-reload needed)
+    volumes: []
+    
+    # Remove port exposure (only accessible via internal network + reverse proxy)
+    # ports: []
+    
+    # Production command (assumes migrations have already been run)
+    command: ["node", "dist/index.js"]
+
+  # Frontend service
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: production
+      args:
+        # Production API URL
+        # For same-server deployment, use relative path or internal URL
+        VITE_API_URL: ${VITE_API_URL:-http://backend:3001/api}
+    
+    # Map to port 80 for standard HTTP
+    ports:
+      - "80:80"
+    
+    # Optional: Add HTTPS redirect in nginx config
+    # ports:
+    #   - "443:443"

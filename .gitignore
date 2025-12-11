@@ -43,3 +43,4 @@ docker-compose.override.yml  # Local overrides
 
 # Secrets
 secrets
+frontend/nginx.prod.conf

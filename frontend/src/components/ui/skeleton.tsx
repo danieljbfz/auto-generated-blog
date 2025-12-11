@@ -4,7 +4,6 @@ import { cn } from '@/lib/utils';
  * Skeleton Component
  * 
  * Loading placeholder that mimics the shape of content.
- * Used to show content structure while data is loading.
  * 
  * @example
  * <Skeleton className="h-12 w-12 rounded-full" />

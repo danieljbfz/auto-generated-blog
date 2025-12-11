@@ -1,8 +1,8 @@
 /**
  * Frontend Types
- * 
- * These types mirror the backend API responses.
- * Keep them in sync with backend/src/types/
+ *
+ * @remarks
+ * We need to keep these in sync with the backend.
  */
 
 export enum ArticleStatus {
@@ -104,6 +104,7 @@ export interface PaginationMeta {
 }
 
 export interface PaginatedResponse<T> {
+  success: boolean;
   data: T[];
   pagination: PaginationMeta;
 }
@@ -120,4 +121,9 @@ export interface ApiResponse<T = any> {
     statusCode: number;
     metadata?: Record<string, any>;
   };
+}
+
+// Paginated API Response
+export interface PaginatedApiResponse<T = any> extends ApiResponse<T[]> {
+  pagination: PaginationMeta;
 }
