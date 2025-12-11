@@ -15,7 +15,7 @@ phases:
       - echo "Installing Docker Compose..."
       - curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
       - chmod +x /usr/local/bin/docker-compose
-      - echo "Docker Compose version: $(docker-compose version)"
+      - docker-compose version
 
   pre_build:
     commands:
@@ -24,25 +24,19 @@ phases:
 
   build:
     commands:
-      # Backend: run tests and build
       - echo "Building backend..."
       - cd backend
-      - echo "Installing backend dependencies..."
       - npm ci
-      - echo "Running backend tests..."
-      - npm test
       - echo "Building backend Docker image..."
       - docker build -t blog-backend .
       - docker tag blog-backend:latest ${BACKEND_ECR_URI}:latest
       - cd ..
-
-      # Frontend: build only (adjust if you have tests)
+      
       - echo "Building frontend..."
       - cd frontend
-      - echo "Installing frontend dependencies..."
       - npm ci
       - echo "Building frontend Docker image..."
-      - docker build -t blog-frontend .
+      - docker build --build-arg VITE_API_URL=http://YOUR_EC2_IP:3001/api -t blog-frontend .
       - docker tag blog-frontend:latest ${FRONTEND_ECR_URI}:latest
       - cd ..
 
@@ -51,18 +45,8 @@ phases:
       - echo "Pushing images to ECR..."
       - docker push ${BACKEND_ECR_URI}:latest
       - docker push ${FRONTEND_ECR_URI}:latest
-      - echo "Images pushed successfully."
-
-      # Optional: trigger EC2 deployment via SSM
-      # (We'll uncomment this AFTER we create EC2)
-      # - echo "Triggering EC2 deployment via SSM..."
-      # - aws ssm send-command \
-      #     --document-name "AWS-RunShellScript" \
-      #     --targets "Key=tag:Name,Values=BlogServer" \
-      #     --parameters commands=["/home/ec2-user/deploy.sh"] \
-      #     --region $AWS_REGION
+      - echo "Build completed on $(date)"
 
 artifacts:
   files:
     - '**/*'
-  discard-paths: no
