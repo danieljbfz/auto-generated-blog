@@ -4,13 +4,13 @@ env:
   variables:
     AWS_REGION: "us-east-1"
     AWS_ACCOUNT_ID: "406005162296"
-    BACKEND_ECR_URI: "406005162296.dkr.ecr.us-east-1.amazonaws.com/auto-auto-blog-backend"
-    FRONTEND_ECR_URI: "406005162296.dkr.ecr.us-east-1.amazonaws.com/auto-auto-blog-frontend"
+    BACKEND_ECR_URI: "406005162296.dkr.ecr.us-east-1.amazonaws.com/auto-blog-backend"
+    FRONTEND_ECR_URI: "406005162296.dkr.ecr.us-east-1.amazonaws.com/auto-blog-frontend"
 
 phases:
   install:
     runtime-versions:
-      nodejs: 18
+      nodejs: 22
     commands:
       - echo "Installing Docker Compose..."
       - curl -SL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-x86_64" -o /usr/local/bin/docker-compose
@@ -32,18 +32,18 @@ phases:
       - echo "Running backend tests..."
       - npm test
       - echo "Building backend Docker image..."
-      - docker build -t auto-blog-backend .
-      - docker tag auto-blog-backend:latest ${BACKEND_ECR_URI}:latest
+      - docker build -t blog-backend .
+      - docker tag blog-backend:latest ${BACKEND_ECR_URI}:latest
       - cd ..
 
-      # Frontend: build only
+      # Frontend: build only (adjust if you have tests)
       - echo "Building frontend..."
       - cd frontend
       - echo "Installing frontend dependencies..."
       - npm ci
       - echo "Building frontend Docker image..."
-      - docker build -t auto-blog-frontend .
-      - docker tag auto-blog-frontend:latest ${FRONTEND_ECR_URI}:latest
+      - docker build -t blog-frontend .
+      - docker tag blog-frontend:latest ${FRONTEND_ECR_URI}:latest
       - cd ..
 
   post_build:
@@ -53,8 +53,16 @@ phases:
       - docker push ${FRONTEND_ECR_URI}:latest
       - echo "Images pushed successfully."
 
+      # Optional: trigger EC2 deployment via SSM
+      # (We'll uncomment this AFTER we create EC2)
+      # - echo "Triggering EC2 deployment via SSM..."
+      # - aws ssm send-command \
+      #     --document-name "AWS-RunShellScript" \
+      #     --targets "Key=tag:Name,Values=BlogServer" \
+      #     --parameters commands=["/home/ec2-user/deploy.sh"] \
+      #     --region $AWS_REGION
+
 artifacts:
   files:
     - '**/*'
   discard-paths: no
-

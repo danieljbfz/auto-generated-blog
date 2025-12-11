@@ -1,4 +1,4 @@
-# Multi-Stage Dockerfile for Auto-Blog Backend
+# Multi-Stage Dockerfile for Node.js + Prisma + TypeScript Backend
 
 # -----------------------------------------------------------------------------
 # Stage 1: Dependencies

@@ -12,7 +12,7 @@ function transformArticle(prismaArticle: any): Article {
     ...prismaArticle,
     tags: prismaArticle.tags?.map((at: any) => at.tag) || [],
     stats: prismaArticle.stats ? {
-      views: prismaArticle.stats.views,
+      views: Number(prismaArticle.stats.views),
       updatedAt: prismaArticle.stats.updatedAt,
     } : null,
   };

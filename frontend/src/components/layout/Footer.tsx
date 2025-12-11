@@ -48,7 +48,7 @@ export function Footer() {
             <h3 className="font-semibold text-lg mb-4">Connect</h3>
             <div className="flex space-x-4">
               <a
-                href="https://github.com"
+                href="https://github.com/danieljbfz/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary transition-colors"

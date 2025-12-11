@@ -1,5 +1,5 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
-import type { Article, PaginatedArticles, Category, Tag, Author, ApiResponse } from '../types';
+import type { Article, Category, Tag, Author, ApiResponse, PaginatedApiResponse } from '../types';
 
 // Base API URL (from environment or default)
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -81,7 +81,7 @@ export const api = {
    * Get published articles feed
    */
   getArticlesFeed: (page = 1, limit = 10) => {
-    return apiClient.get<ApiResponse<PaginatedArticles>, PaginatedArticles>(
+    return apiClient.get<any, PaginatedApiResponse<Article>>(
       `/articles/feed?page=${page}&limit=${limit}`
     );
   },
@@ -90,14 +90,14 @@ export const api = {
    * Get article by slug
    */
   getArticleBySlug: (slug: string) => {
-    return apiClient.get<ApiResponse<Article>, Article>(`/articles/by-slug/${slug}`);
+    return apiClient.get<any, ApiResponse<Article>>(`/articles/by-slug/${slug}`);
   },
   
   /**
    * Get article by ID
    */
   getArticleById: (id: string) => {
-    return apiClient.get<ApiResponse<Article>, Article>(`/articles/${id}`);
+    return apiClient.get<any, ApiResponse<Article>>(`/articles/${id}`);
   },
   
   /**
@@ -119,7 +119,7 @@ export const api = {
         .map(([k, v]) => [k, Array.isArray(v) ? v.join(',') : String(v)])
     ).toString();
     
-    return apiClient.get<ApiResponse<PaginatedArticles>, PaginatedArticles>(
+    return apiClient.get<any, PaginatedApiResponse<Article>>(
       `/articles?${queryString}`
     );
   },
@@ -132,21 +132,21 @@ export const api = {
    * Get all categories (flat list)
    */
   getCategories: () => {
-    return apiClient.get<ApiResponse<Category[]>, Category[]>('/categories');
+    return apiClient.get<any, ApiResponse<Category[]>>('/categories');
   },
   
   /**
    * Get category tree (hierarchical)
    */
   getCategoryTree: () => {
-    return apiClient.get<ApiResponse<Category[]>, Category[]>('/categories/tree');
+    return apiClient.get<any, ApiResponse<Category[]>>('/categories/tree');
   },
   
   /**
    * Get category by ID
    */
   getCategoryById: (id: string) => {
-    return apiClient.get<ApiResponse<Category>, Category>(`/categories/${id}`);
+    return apiClient.get<any, ApiResponse<Category>>(`/categories/${id}`);
   },
   
   // -------------------------------------------------------------------------
@@ -157,14 +157,14 @@ export const api = {
    * Get all tags
    */
   getTags: () => {
-    return apiClient.get<ApiResponse<Tag[]>, Tag[]>('/tags');
+    return apiClient.get<any, ApiResponse<Tag[]>>('/tags');
   },
   
   /**
    * Get popular tags
    */
   getPopularTags: (limit = 20) => {
-    return apiClient.get<ApiResponse<Tag[]>, Tag[]>(`/tags/popular?limit=${limit}`);
+    return apiClient.get<any, ApiResponse<Tag[]>>(`/tags/popular?limit=${limit}`);
   },
   
   // -------------------------------------------------------------------------
@@ -175,14 +175,14 @@ export const api = {
    * Get all authors
    */
   getAuthors: () => {
-    return apiClient.get<ApiResponse<Author[]>, Author[]>('/authors');
+    return apiClient.get<any, ApiResponse<Author[]>>('/authors');
   },
   
   /**
    * Get author by slug
    */
   getAuthorBySlug: (slug: string) => {
-    return apiClient.get<ApiResponse<Author>, Author>(`/authors/by-slug/${slug}`);
+    return apiClient.get<any, ApiResponse<Author>>(`/authors/by-slug/${slug}`);
   },
 };
 
