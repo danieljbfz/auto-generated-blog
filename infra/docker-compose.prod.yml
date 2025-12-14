@@ -1,0 +1,57 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: blog-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: autoblog
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - blog-network
+
+  backend:
+    image: 406005162296.dkr.ecr.us-east-1.amazonaws.com/auto-blog-backend:latest
+    container_name: blog-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/autoblog
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: autoblog
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      HUGGINGFACE_API_KEY: ${HUGGINGFACE_API_KEY}
+      AI_GENERATION_ENABLED: true
+      CORS_ORIGIN: "*"
+      LOG_LEVEL: info
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    networks:
+      - blog-network
+
+  frontend:
+    image: 406005162296.dkr.ecr.us-east-1.amazonaws.com/auto-blog-frontend:latest
+    container_name: blog-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - blog-network
+
+volumes:
+  postgres_data:
+
+networks:
+  blog-network:
+    driver: bridge
