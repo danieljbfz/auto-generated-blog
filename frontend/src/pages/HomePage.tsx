@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { ArticleCard } from '@/components/article/ArticleCard';
 import { ArticleCardSkeleton } from '@/components/article/ArticleCardSkeleton';
 import { Button } from '@/components/ui/button';

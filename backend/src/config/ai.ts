@@ -99,7 +99,7 @@ Return only the JSON object:`;
  */
 export const GENERATION_CONFIG = {
   /** Maximum tokens to generate */
-  maxTokens: 8192,
+  maxTokens: 4096,
   
   /** Sampling temperature (0.0-1.0) */
   temperature: 0.7,
