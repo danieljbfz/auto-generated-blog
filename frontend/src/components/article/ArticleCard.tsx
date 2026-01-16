@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Calendar, Clock, User } from 'lucide-react';
+import { memo } from 'react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { formatDate, truncate } from '@/lib/utils';
@@ -12,7 +13,7 @@ interface ArticleCardProps {
 /**
  * Article Card Component
  */
-export function ArticleCard({ article }: ArticleCardProps) {
+function ArticleCardComponent({ article }: ArticleCardProps) {
   return (
     <Link to={`/articles/${article.slug}`} className="block h-full cursor-pointer">
       <Card className="h-full overflow-hidden transition-all hover:shadow-lg hover:scale-[1.02]">
@@ -105,3 +106,5 @@ export function ArticleCard({ article }: ArticleCardProps) {
     </Link>
   );
 }
+
+export const ArticleCard = memo(ArticleCardComponent);

@@ -1,5 +1,6 @@
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { memo } from 'react';
 import { Calendar, Clock, User, Eye } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils';
@@ -12,7 +13,7 @@ interface ArticleContentProps {
 /**
  * Article Content Component
  */
-export function ArticleContent({ article }: ArticleContentProps) {
+function ArticleContentComponent({ article }: ArticleContentProps) {
   return (
     <article className="mx-auto max-w-4xl">
       {/* Featured Image */}
@@ -136,3 +137,5 @@ export function ArticleContent({ article }: ArticleContentProps) {
     </article>
   );
 }
+
+export const ArticleContent = memo(ArticleContentComponent);

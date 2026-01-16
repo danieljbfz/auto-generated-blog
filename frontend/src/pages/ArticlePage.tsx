@@ -18,6 +18,8 @@ export function ArticlePage() {
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
+    let mounted = true;
+    
     const loadArticle = async () => {
       if (!slug) {
         setError('Article not found');
@@ -31,22 +33,32 @@ export function ArticlePage() {
         
         // Delay showing skeleton by 200ms to prevent flash on fast loads
         const skeletonTimer = setTimeout(() => {
-          setShowSkeleton(true);
+          if (mounted) setShowSkeleton(true);
         }, 200);
         
         const response: ApiResponse<Article> = await api.getArticleBySlug(slug);
         
         clearTimeout(skeletonTimer);
-        setArticle(response.data || null);
+        if (mounted) {
+          setArticle(response.data || null);
+        }
       } catch (err: any) {
-        setError(err.message || 'Failed to load article');
+        if (mounted) {
+          setError(err.message || 'Failed to load article');
+        }
       } finally {
-        setLoading(false);
-        setShowSkeleton(false);
+        if (mounted) {
+          setLoading(false);
+          setShowSkeleton(false);
+        }
       }
     };
     
     loadArticle();
+    
+    return () => {
+      mounted = false;
+    };
   }, [slug]);
   
   // Loading State (only show after delay)
